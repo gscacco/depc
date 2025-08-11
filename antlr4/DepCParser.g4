@@ -1,3 +1,9 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2025.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
 parser grammar DepCParser;
 options { tokenVocab=DepCLexer; }
 
@@ -30,46 +36,66 @@ options { tokenVocab=DepCLexer; }
 }
 
 // Module and top level expressions
-module: (typeDef | funcDef)* EOF;
-funcDef: type name=ID '(' (funcArg (',' funcArg)*)? ')' body
-    | 'auto' name=ID '(' (funcArg (',' funcArg)*)? ')' '->' type body
-    ;
-typeDef:
+module: moduleEntry* EOF;
+moduleEntry: typeDef | axiom | externDecl | funcDecl | funcDef;
+axiom: 'axiom' name=ID funcType ';';
+externDecl: 'extern' name=ID funcType ';';
+funcSig: 'func' ('[[' attribute=ATTR ']]')? name=ID funcType;
+funcDecl: funcSig ';';
+funcDef: funcSig body;
+typeDef: integerDef | structDef;
+integerDef:
     'typedef' name=ID '='
     {one_of("signed", "unsigned")}? sign=ID
     {one_of("8", "16", "32", "64")}? width=INT
     {one_of("bit")}? ID
     {one_of("integer")}? ID
-    {one_of("from")}? ID
-    ('...' | '-' min=INT | {one_of("0")}? zero=INT)
-    {one_of("to")}? ID
-    ('...' | '+'? max=INT)
     SEMI;
-funcArg: ('typename' | type) name=ID?;
+structDef: 'struct' name=ID '{' (fieldDecl SEMI)* '}' SEMI;
+fieldDecl: fieldType=expr fieldName=ID;
 
 // Types
-type: primitiveType | funcType | typeVar;
-primitiveType: 'bool' | 'unit_t' | 'i8_t' | 'i16_t' | 'i32_t' | 'i64_t' | 'u8_t' | 'u16_t' | 'u32_t' | 'u64_t';
-funcType: '(' (funcArg (',' funcArg)*)? ')' '->' retType=type;
+funcArg: ({one_of("0", "1")}? qty=INT)? ('typename' | expr) name=ID?;
+type: primitiveType | funcType | tupleType | typeVar;
+primitiveType: 'bool_t' | 'cstr_t' | 'unit_t' | 'i8_t' | 'i16_t' | 'i32_t' | 'i64_t' | 'u8_t' | 'u16_t' | 'u32_t' | 'u64_t';
+funcType: '(' (funcArg (',' funcArg)*)? ')' 'mutable'? '->' ('typename' | retType=expr);
+tupleType: '(' ')' | '(' funcArg ',' ')' | '(' funcArg (',' funcArg)+ ')';
 typeVar: name=ID;
 
 // Statements
 body: '{' stmt* '}';
 
-stmt: funcCallStmt | ifElse | returnStmt;
+stmt: funcCallStmt | ifElse | returnStmt | impossibleStmt;
 
-funcCallStmt: funcCall ';';
+funcCallStmt: func=expr '(' (expr (',' expr)*)? ')' ';';
 ifElse: 'if' '(' cond=expr ')' true_branch=bodyOrStmt ('else' false_branch=bodyOrStmt)?;
 bodyOrStmt: body | stmt;
 returnStmt: 'return' expr? ';';
+impossibleStmt: 'impossible' ('because' expr)?';';
 
 // Expressions
-expr: lhs=expr '+' rhs=expr # plusExpr
-    | sign=('+' | '-')? value=INT # numericExpr
-    | value=('true'|'false') # booleanExpr
-    | funcCall # funcCallExpr
+expr:
+      func=expr '(' (expr (',' expr)*)? ')' # funcCallExpr
+    | 'scopeof' '(' expr ')' # scopeExpr
+    | expr ('.' | '->') field=ID # memberExpr
+    | expr '[' expr ']' # subscriptExpr
+    | '&' expr # addressOfExpr
+    | '*' expr # derefExpr
+    | value=expr 'because' reason=expr # becauseExpr
+    | 'not' expr # notExpr
+    | lhs=expr op=('*' | '/') rhs=expr # multOrDivExpr
+    | lhs=expr op=('+' | '-') rhs=expr # plusOrMinusExpr
+    | lhs=expr op=('<' | '<=' | '>' | '>=') rhs=expr # relationExpr
+    | lhs=expr op=('==' | '!=') rhs=expr # equalityExpr
+    | lhs=expr 'and' rhs=expr # andExpr
+    | lhs=expr 'or' rhs=expr # orExpr
+    | value=STR # stringLiteral
+    | sign=('+' | '-')? value=INT # numericConstant
+    | value=('true'|'false') # booleanConstant
+    | ('array_t' | 'auto' | 'ref_t' | 'scope_t' | 'true_t') # kwExpr
+    | module_name=ID? '::' symbol_name=ID # globalExpr
     | var=ID # varExpr
     | type # typeExpr // in an expression `f(x)` x should be parsed as `var` so this rule must come after `var`
+    | '(' expr ')' # subExpr
+    | '{' (expr (',' expr)*)? '}' # initListExpr
     ;
-
-funcCall: name=ID '(' (expr (',' expr)*)? ')';

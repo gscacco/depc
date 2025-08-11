@@ -1,0 +1,20 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func empty_of(typename t) -> array_t(t, 0)
+{
+    return {};
+}
+
+func empty_of_int() -> array_t(i32_t, 0)
+{
+    return empty_of(i32_t);
+}
+
+func empty_of_bool() -> array_t(bool_t, 0)
+{
+    return empty_of(bool_t);
+}

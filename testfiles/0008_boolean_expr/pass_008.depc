@@ -1,0 +1,22 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+typedef sign_t = signed 8 bit integer;
+typedef hours_t = unsigned 8 bit integer;
+func f0() -> bool_t { return false == true; }
+func f1() -> bool_t { return false == false == true; }
+func f2() -> bool_t { return false == (false == true); }
+func f3() -> bool_t { return true and false == false < true; }
+func f4() -> bool_t { return false < true == true; }
+func f5(i32_t x) -> bool_t { return 1 == x; }
+func f6(u32_t x) -> bool_t { return x == 2; }
+func f7(sign_t x, sign_t y) -> bool_t { return x == y; }
+func f8(i32_t x, i32_t y) -> bool_t { return x == x + y; }
+func f9(u32_t x, u32_t y) -> bool_t { return x + y == x + y; }
+func f10(hours_t x, hours_t y) -> bool_t { return x + y == x; }
+func f11(array_t(bool_t, 3) xs) -> bool_t { return xs[0] == xs[1] == xs[2]; }
+func f12(array_t(bool_t, 3) xs) -> bool_t { return xs[0] == (xs[1] == xs[2]); }
+func f13(array_t(i32_t, 3) xs) -> bool_t { return xs[0] + xs[1] == xs[1] + xs[2]; }

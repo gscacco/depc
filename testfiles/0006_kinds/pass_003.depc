@@ -1,0 +1,49 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func negate(bool_t x) -> bool_t
+{
+    if (x) return false;
+    else return true;
+}
+
+func plus_1(i32_t x) -> i32_t
+{
+    return x + 1;
+}
+
+func int_or_bool(bool_t which) -> typename
+{
+    if (which) return i32_t;
+    else return bool_t;
+}
+
+func select(bool_t which) -> (int_or_bool(which)) -> int_or_bool(which)
+{
+    if (which)
+        return plus_1;
+    else
+        return negate;
+}
+
+func apply(typename t, (t) -> t f, t x) -> t
+{
+    return f(x);
+}
+
+func f() -> i32_t { return apply(int_or_bool(true), select(true), 1); }
+func g() -> bool_t { return apply(int_or_bool(false), select(false), false); }
+
+// same but with implicit else branch
+
+func select2(bool_t which) -> (int_or_bool(which)) -> int_or_bool(which)
+{
+    if (which)
+        return plus_1;
+    return negate;
+}
+func f2() -> i32_t { return apply(int_or_bool(true), select2(true), 1); }
+func g2() -> bool_t { return apply(int_or_bool(false), select2(false), false); }

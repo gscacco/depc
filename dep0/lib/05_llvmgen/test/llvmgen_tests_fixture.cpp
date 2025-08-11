@@ -1,13 +1,55 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2025.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
 #include "llvmgen_tests_fixture.hpp"
 
 #include "dep0/parser/parse.hpp"
 #include "dep0/typecheck/check.hpp"
+#include "dep0/typecheck/environment.hpp"
 #include "dep0/transform/beta_delta_normalization.hpp"
 
 #include "dep0/llvmgen/gen.hpp"
 
+#include "dep0/testing/failure.hpp"
+
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Target/TargetOptions.h>
+
+/**
+ * Helper function used to ensure that the base environment is constructed only once for an entire test suite.
+ * This is helpful because constructing a fresh base environment for each test would make running the test suite
+ * unnecessarily slow, because we would need to parse and check the prelude for each test.
+ * Moreover, instead of using a global variable, a function with a static local is preferred because apparently
+ * ANTLR4 seems to also initialise some global which might not have been initialised yet when parsing the prelude.
+ */
+static dep0::typecheck::env_t const& get_base_env()
+{
+    static auto const env = dep0::typecheck::make_base_env().value();
+    return env;
+}
+
+LLVMGenTestsFixture::LLVMGenTestsFixture()
+{
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmPrinters();
+    llvm::InitializeAllAsmParsers();
+}
+
 boost::test_tools::predicate_result LLVMGenTestsFixture::pass(std::filesystem::path const file)
 {
+    auto const target_triple = std::string("x86_64-unknown-linux-gnu");
+    std::string llvm_err;
+    auto const target = llvm::TargetRegistry::lookupTarget(target_triple, llvm_err);
+    if (not target)
+        return dep0::testing::failure("failed to lookup LLVM target from triple `", target_triple, "`: ", llvm_err);
+    auto const machine = target->createTargetMachine(target_triple, "", "", {}, {});
+    if (not machine)
+        return dep0::testing::failure("failed to create target machine");
     auto parse_result = dep0::parser::parse(testfiles / file);
     if (parse_result.has_error())
     {
@@ -15,7 +57,7 @@ boost::test_tools::predicate_result LLVMGenTestsFixture::pass(std::filesystem::p
         dep0::pretty_print(res.message().stream(), parse_result.error());
         return res;
     }
-    auto check_result = dep0::typecheck::check(*parse_result);
+    auto check_result = dep0::typecheck::check(get_base_env(), *parse_result);
     if (check_result.has_error())
     {
         auto res = boost::test_tools::predicate_result(false);
@@ -33,7 +75,7 @@ boost::test_tools::predicate_result LLVMGenTestsFixture::pass(std::filesystem::p
             return res;
         }
     }
-    auto gen_result = dep0::llvmgen::gen(llvm_ctx, "test.depc", *check_result);
+    auto gen_result = dep0::llvmgen::gen(llvm_ctx, "test.depc", *check_result, *machine);
     if (gen_result.has_error())
     {
         auto res = boost::test_tools::predicate_result(false);
@@ -44,62 +86,16 @@ boost::test_tools::predicate_result LLVMGenTestsFixture::pass(std::filesystem::p
     return true;
 }
 
-boost::test_tools::predicate_result LLVMGenTestsFixture::is_i32(
-    llvm::Argument const* const arg,
-    std::optional<std::string_view> const name)
+llvm::Function const* LLVMGenTestsFixture::get_function(std::string_view const name) const
 {
-    if (not arg)
-        return dep0::testing::failure("arg is null");
-    if (name)
-    {
-        if (arg->getName().str() != *name)
-            return dep0::testing::failure("argument name: ", arg->getName().str(), " != ", *name);
-    }
-    else
-    {
-        if (not arg->getName().empty())
-            return dep0::testing::failure("argument has a name but should be anonymous: ", arg->getName().str());
-    }
-    if (not arg->hasSExtAttr())
-        return dep0::testing::failure("argument has no SExt atribute");
-    return true;
+    return pass_result ? pass_result.value()->getFunction(name) : nullptr;
 }
 
-boost::test_tools::predicate_result LLVMGenTestsFixture::is_u32(
-    llvm::Argument const* const arg,
-    std::string_view const name)
+llvm::StructType const* LLVMGenTestsFixture::get_struct(std::string_view const name) const
 {
-    if (not arg)
-        return dep0::testing::failure("arg is null");
-    if (arg->getName().str() != name)
-        return dep0::testing::failure("argument name: ", arg->getName().str(), " != ", name);
-    if (not arg->hasZExtAttr())
-        return dep0::testing::failure("argument has no ZExt atribute");
-    return true;
-}
-
-boost::test_tools::predicate_result LLVMGenTestsFixture::is_return_of(
-    llvm::Instruction const* const instr,
-    std::string_view const name)
-{
-    if (not instr)
-        return dep0::testing::failure("instr is null");
-    auto const ret = cast<llvm::ReturnInst>(instr);
-    if (not ret)
-        return dep0::testing::failure("not a return instruction");
-    if (not ret->getReturnValue())
-        return dep0::testing::failure("return instruction has no value");
-    if (auto const& str = ret->getReturnValue()->getName().str(); str != name)
-        return dep0::testing::failure("return value ", str, " != ", name);
-    return true;
-}
-
-boost::test_tools::predicate_result LLVMGenTestsFixture::is_signed_constant(llvm::Value const& v, long long const value)
-{
-    auto const c = cast<llvm::ConstantInt>(&v);
-    if (not c)
-        return dep0::testing::failure("value is not a constant");
-    if (c->getSExtValue() != value)
-        return dep0::testing::failure(c->getSExtValue(), " != ", value);
-    return true;
+    if (pass_result)
+        for (auto const s : pass_result.value()->getIdentifiedStructTypes())
+            if (static_cast<std::string_view>(s->getName()) == name)
+                return s;
+    return nullptr;
 }

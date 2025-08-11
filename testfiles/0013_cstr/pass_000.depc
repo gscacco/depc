@@ -1,0 +1,18 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func f0() -> cstr_t { return ""; }
+func f1() -> cstr_t { return "0"; }
+func f2() -> cstr_t { return "hello world"; }
+func f3() -> cstr_t { return "hello \"world\""; }
+func f4() -> cstr_t { return "hello 'world'"; }
+func f5() -> cstr_t { return "hello\\world"; }
+func f6() -> cstr_t { return "hello\nworld"; }
+func f7() -> cstr_t { return "hello\tworld"; }
+func f8() -> cstr_t { return "hello\vworld"; }
+func f9() -> cstr_t { return "hello\bworld"; }
+func f10() -> cstr_t { return "hello\fworld"; }
+func f11() -> cstr_t { return "hello\rworld"; }

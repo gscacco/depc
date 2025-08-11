@@ -1,0 +1,23 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+axiom nothing_bigger_than_true(bool_t a, true_t(a > true)) -> true_t(false);
+
+func a_gt_b_implies_a(bool_t a, bool_t b, 0 true_t(a > b)) -> i32_t
+{
+    if (b)
+        impossible because nothing_bigger_than_true(a, auto);
+    else if (a)
+        return 0;
+    else
+        impossible;
+        
+}
+
+func f(bool_t a, bool_t b, 0 true_t(a > b)) -> i32_t
+{
+    return a_gt_b_implies_a(a, b, auto);
+}

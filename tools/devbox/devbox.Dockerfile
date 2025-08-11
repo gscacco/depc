@@ -1,3 +1,9 @@
+#
+# Copyright Raffaele Rossi 2023 - 2024.
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+#
 FROM ubuntu:20.04
 
 # If you're behind a proxy, uncomment these lines and specify your proxy details
@@ -30,4 +36,10 @@ RUN apt-get update \
 # Install javac used by antlr4
 RUN apt-get update \
  && apt-get install -y default-jdk \
+ && rm -fr /var/lib/apt/lists
+
+# Install doxygen
+# TODO replace with doxygen from conan after upgrading conan
+RUN apt-get update \
+ && apt-get install -y doxygen \
  && rm -fr /var/lib/apt/lists

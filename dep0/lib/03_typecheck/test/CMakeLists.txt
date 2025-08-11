@@ -1,3 +1,9 @@
+#
+# Copyright Raffaele Rossi 2023 - 2025.
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+#
 add_custom_target(dep0_typecheck_tests)
 
 add_library(dep0_typecheck_tests_fixture
@@ -24,3 +30,22 @@ add_dep0_typecheck_test(0002_user_defined_integrals)
 add_dep0_typecheck_test(0003_function_arguments)
 add_dep0_typecheck_test(0004_plus_expr)
 add_dep0_typecheck_test(0005_pi_types)
+add_dep0_typecheck_test(0006_kinds)
+add_dep0_typecheck_test(0007_arrays)
+add_dep0_typecheck_test(0008_boolean_expr)
+add_dep0_typecheck_test(0009_func_decl)
+add_dep0_typecheck_test(0010_axioms)
+add_dep0_typecheck_test(0011_quantities)
+add_dep0_typecheck_test(0012_auto_expr)
+add_dep0_typecheck_test(0013_cstr)
+add_dep0_typecheck_test(0014_extern_decl)
+add_dep0_typecheck_test(0015_because)
+add_dep0_typecheck_test(0016_impossible)
+add_dep0_typecheck_test(0016_prelude)
+add_dep0_typecheck_test(0017_minus_expr)
+add_dep0_typecheck_test(0018_mult_expr)
+add_dep0_typecheck_test(0019_div_expr)
+add_dep0_typecheck_test(0020_builtins)
+add_dep0_typecheck_test(0021_tuples)
+add_dep0_typecheck_test(0022_structs)
+add_dep0_typecheck_test(0023_references)

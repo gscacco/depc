@@ -1,5 +1,11 @@
-i32_t id(i32_t x) { return x; }
-i32_t main()
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func id(i32_t x) -> i32_t { return x; }
+func main() -> i32_t
 {
     return id(0);
 }

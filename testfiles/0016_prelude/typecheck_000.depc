@@ -1,0 +1,16 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func f(bool_t a, 0 true_t(a)) -> i32_t
+{
+    return 1;
+}
+
+func g(bool_t a) -> i32_t
+{
+    // this is testing that the compiler does not get stuck trying to apply the same basic axioms recursively
+    return f(a, auto);
+}

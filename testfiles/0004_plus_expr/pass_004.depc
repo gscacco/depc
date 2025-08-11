@@ -1,0 +1,19 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func one() -> i32_t { return 1; }
+func two() -> i32_t { return 2; }
+func three() -> i32_t { return one() + two(); }
+func four() -> i32_t { return three() + 1; }
+func five() -> i32_t { return 2 + three(); }
+func six() -> i32_t { return +3 + three(); }
+func nine() -> i32_t { return 1 + six() + 2; }
+func eight() -> i32_t { return -1 + nine(); }
+func seven() -> i32_t { return eight() + -1; }
+func ten() -> i32_t { return seven() + +3; }
+func zero_a() -> i32_t { return -1 + one() + one() + -1; }
+func zero_b() -> i32_t { return one() + -1 + one() + -1; }
+func zero_c() -> i32_t { return one() + one() + -1 + -1; }

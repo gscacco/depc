@@ -1,79 +1,241 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
 #define BOOST_TEST_MODULE dep0_llvmgen_tests_0001_integral_primitives
 #include <boost/test/included/unit_test.hpp>
 
 #include "llvmgen_tests_fixture.hpp"
+#include "llvm_predicates.hpp"
+
+using namespace dep0::llvmgen::testing;
+
+static auto const sext = std::vector{llvm::Attribute::SExt};
+static auto const zext = std::vector{llvm::Attribute::ZExt};
 
 BOOST_FIXTURE_TEST_SUITE(dep0_llvmgen_tests_0001_integral_primitives, LLVMGenTestsFixture)
 
 BOOST_AUTO_TEST_CASE(pass_000)
 {
     BOOST_TEST_REQUIRE(pass("0001_integral_primitives/pass_000.depc"));
-    BOOST_TEST(has_function("f0", [] (llvm::Function const& f)
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::SExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), signed_constant(127)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f18", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f0");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i8, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(127)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::SExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), signed_constant(32767)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f42", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f18");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i16, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(32767)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::SExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), signed_constant(2147483647)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f81", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f42");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i32, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(2147483647)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::SExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), signed_constant(9223372036854775807)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f141", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f81");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(std::numeric_limits<std::int64_t>::max())));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::ZExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), unsigned_constant(255ul)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f153", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f141");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i8, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(255ul)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::ZExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), unsigned_constant(65535ul)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f169", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f153");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i16, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(65535ul)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::ZExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), unsigned_constant(4294967295ul)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f195", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f169");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i32, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(4294967295ul)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::ZExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), unsigned_constant(18446744073709551615ul)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f235", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f195");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(18446744073709551615ul)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::ZExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), unsigned_constant(9999999999999999999ul)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f237", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f235");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(9999999999999999999ul)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::ZExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), unsigned_constant(9999999999999999999ul)));
-        return boost::test_tools::predicate_result(true);
-    }));
-    BOOST_TEST(has_function("f238", [] (llvm::Function const& f)
+        auto const f = pass_result.value()->getFunction("f237");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(9999999999999999999ul)));
+    }
     {
-        BOOST_TEST(f.hasAttribute(llvm::AttributeList::ReturnIndex, llvm::Attribute::ZExt));
-        BOOST_TEST(is_return_of(f.getEntryBlock().getTerminator(), unsigned_constant(9999999999999999999ul)));
-        return boost::test_tools::predicate_result(true);
-    }));
+        auto const f = pass_result.value()->getFunction("f238");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(9999999999999999999ul)));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(pass_001)
+{
+    apply_beta_delta_normalization = true;
+    BOOST_TEST_REQUIRE(pass("0001_integral_primitives/pass_001.depc"));
+    {
+        auto const f = pass_result.value()->getFunction("one_i8");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i8, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("one_i16");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i16, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("one_i32");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i32, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("one_i64");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("one_u8");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i8, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("one_u16");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i16, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("one_u32");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i32, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("one_u64");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("max_i8");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i8, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(127)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("max_i16");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i16, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(32767)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("max_i32");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i32, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(2147483647)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("max_i64");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(9223372036854775807ul)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("max_u8");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i8, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(-1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("max_u16");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i16, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(-1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("max_u32");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i32, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(-1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("max_u64");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(-1)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("min_i8");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i8, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(-128)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("min_i16");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i16, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(-32768)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("min_i32");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i32, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(std::numeric_limits<std::int32_t>::min())));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("min_i64");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, sext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(0x8000'0000'0000'0000ul)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("min_u8");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i8, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(0)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("min_u16");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i16, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(0)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("min_u32");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i32, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(0)));
+    }
+    {
+        auto const f = pass_result.value()->getFunction("min_u64");
+        BOOST_TEST_REQUIRE(is_function_of(f, std::tuple{}, is_i64, zext));
+        BOOST_TEST_REQUIRE(f->size() == 1ul);
+        BOOST_TEST(is_return_of(f->getEntryBlock().getTerminator(), constant(0)));
+    }
 }
 
 // BOOST_AUTO_TEST_CASE(parse_error_000)

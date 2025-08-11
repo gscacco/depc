@@ -1,0 +1,22 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func f() -> i32_t { return 0; }
+func g() -> i32_t { return 1; }
+func negate(bool_t x) -> bool_t { if (x) return false; else return true; }
+
+func select(bool_t which) -> ()->i32_t
+{
+    if (which)
+        return f;
+    else
+        return g;
+}
+
+func choose(bool_t which) -> array_t(()->i32_t, 2)
+{
+    return {select(which), select(negate(which))};
+}

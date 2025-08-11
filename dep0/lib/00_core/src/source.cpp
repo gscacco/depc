@@ -1,10 +1,23 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
 #include "dep0/source.hpp"
 
 namespace dep0 {
 
 // implementation of source_handle_t
 
-source_handle_t::source_handle_t(std::nullptr_t) : state(nullptr) { }
+source_handle_t::source_handle_t(source_handle_t::literal_string_tag_t) : state(nullptr) { }
+
+void source_handle_t::acquire(state_t* const s)
+{
+    state = s;
+    if (state)
+        ++state->counter;
+}
 
 void source_handle_t::release()
 {
@@ -17,14 +30,13 @@ void source_handle_t::release()
 }
 
 source_handle_t::~source_handle_t() { release(); }
-source_handle_t::source_handle_t(source_handle_t const& that) : state(that.state) { ++that.state->counter; }
+source_handle_t::source_handle_t(source_handle_t const& that) { acquire(that.state); }
 source_handle_t::source_handle_t(source_handle_t&& that) : state(std::exchange(that.state, nullptr)) { }
 
 source_handle_t& source_handle_t::operator=(source_handle_t const& that)
 {
     release();
-    state = that.state;
-    ++that.state->counter;
+    acquire(that.state);
     return *this;
 }
 
@@ -35,9 +47,12 @@ source_handle_t& source_handle_t::operator=(source_handle_t&& that)
     return *this;
 }
 
-source_handle_t make_null_handle() { return source_handle_t(nullptr); }
-
 // implementation of source_text
+
+source_text source_text::from_literal(char const* const s)
+{
+    return source_text(source_handle_t(source_handle_t::literal_string_tag_t{}), s);
+}
 
 source_text::source_text(source_handle_t hdl, std::string_view const txt) :
     hdl(std::move(hdl)),

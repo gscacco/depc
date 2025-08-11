@@ -1,0 +1,45 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func sq_matrix(u64_t n) -> typename
+{
+    return array_t(array_t(i32_t, n), n);
+}
+
+func id_matrix() -> sq_matrix(2)
+{
+    return {
+        {1, 0},
+        {0, 1}
+    };
+}
+func anti_id_matrix() -> sq_matrix(2)
+{
+    return {
+        {0, 1},
+        {1, 0}
+    };
+}
+
+func select_matrix(bool_t which) -> sq_matrix(2)
+{
+    if (which) return id_matrix();
+    else return anti_id_matrix();
+}
+
+func trace(sq_matrix(2) m) -> i32_t { return m[0][0] + m[1][1]; }
+func anti_trace(sq_matrix(2) m) -> i32_t { return m[1][0] + m[0][1]; }
+
+func select_fn(bool_t which) -> (sq_matrix(2)) -> i32_t
+{
+    if (which) return trace;
+    else return anti_trace;
+}
+
+func test(bool_t which) -> i32_t
+{
+    return select_fn(which)(select_matrix(which));
+}

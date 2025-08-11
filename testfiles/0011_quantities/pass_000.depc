@@ -1,0 +1,17 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func f0(0 i32_t x) -> i32_t { return 0; }
+func f1(1 i32_t x) -> i32_t { return x; }
+func f2(  i32_t x) -> i32_t { return x + x; }
+
+func g(0 i32_t x, 1 i32_t y, i32_t z) -> i32_t
+{
+    return
+         f0(x) + // cannot call f1(x) nor f2(x)
+        (f0(y) + f1(y)) + // cannot call f2(y)
+        (f0(z) + f1(z) + f2(z)); // can call everything
+}

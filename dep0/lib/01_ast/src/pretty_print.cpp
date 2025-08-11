@@ -1,13 +1,7 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
 #include "dep0/ast/pretty_print.hpp"
-
-namespace dep0::ast {
-
-std::ostream& pretty_print(std::ostream& os, indexed_var_t const& x, std::size_t)
-{
-    os << x.txt;
-    if (x.idx)
-        os << ':' << x.idx;
-    return os;
-}
-
-} // namespace dep0::ast

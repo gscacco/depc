@@ -1,18 +1,31 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+/**
+ * @file
+ * @brief Fundamental concepts that AST nodes must satisfy.
+ */
 #pragma once
 
 namespace dep0::ast {
 
-template <template <typename> typename T>
-concept Node = true;
-
+/**
+ * @brief Checks whether `T` is a trait-type providing the type of properties for each node of the AST.
+ * @see @ref dep0_design_ast
+ */
 template <typename T>
 concept Properties = requires(T)
 {
     typename T::module_properties_type;
     typename T::type_def_properties_type;
+    typename T::axiom_properties_type;
+    typename T::extern_decl_properties_type;
+    typename T::func_decl_properties_type;
     typename T::func_def_properties_type;
     typename T::func_arg_properties_type;
-    typename T::type_properties_type;
     typename T::body_properties_type;
     typename T::stmt_properties_type;
     typename T::expr_properties_type;

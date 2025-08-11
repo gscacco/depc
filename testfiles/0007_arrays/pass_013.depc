@@ -1,0 +1,21 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func signed_or_unsigned(bool_t signed) -> typename
+{
+    if (signed) return i32_t;
+    else return u32_t;
+}
+
+func first(bool_t signed, array_t(signed_or_unsigned(signed), 3) xs) -> signed_or_unsigned(signed)
+{
+    return xs[0];
+}
+
+func minus_one() -> i32_t
+{
+    return first(true, {-1,-2,-3});
+}

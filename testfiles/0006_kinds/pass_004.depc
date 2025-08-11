@@ -1,0 +1,50 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func negate(bool_t x) -> bool_t
+{
+    if (x) return false;
+    else return true;
+}
+
+func int_or_bool(bool_t which) -> typename
+{
+    if (which) return i32_t;
+    else return bool_t;
+}
+
+func to_bool(i32_t) -> bool_t { return false; }
+func to_int(bool_t) -> i32_t { return 0; }
+
+func select(bool_t which) -> (int_or_bool(which)) -> int_or_bool(negate(which))
+{
+    if (which)
+        return to_bool;
+    else
+        return to_int;
+}
+
+func always_int(
+    bool_t which,
+    (int_or_bool(which)) -> int_or_bool(negate(which)) f,
+    int_or_bool(which) x
+) -> i32_t
+{
+    if (which)
+        return x;
+    else
+        return f(x);
+}
+
+func zero_from_int() -> i32_t
+{
+    return always_int(true, select(true), 0);
+}
+
+func zero_from_bool() -> i32_t
+{
+    return always_int(false, select(false), false);
+}

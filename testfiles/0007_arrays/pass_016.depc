@@ -1,0 +1,23 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func last(array_t(i32_t, 3) xs) -> i32_t
+{
+    return xs[2];
+}
+
+func count_3(bool_t start_from_zero) -> array_t(i32_t, 3)
+{
+    if (start_from_zero)
+        return {0,1,2};
+    else
+        return {1,2,3};
+}
+
+func two_or_three(bool_t start_from_zero) -> i32_t
+{
+    return last(count_3(start_from_zero));
+}

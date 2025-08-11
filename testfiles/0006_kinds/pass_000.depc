@@ -1,0 +1,20 @@
+/*
+ * Copyright Raffaele Rossi 2023 - 2024.
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+ */
+func type_identity(typename t) -> typename
+{
+    return t;
+}
+
+func id(typename t, t x) -> t
+{
+    return x;
+}
+
+func zero() -> i32_t
+{
+    return id(type_identity(i32_t), 0);
+}
